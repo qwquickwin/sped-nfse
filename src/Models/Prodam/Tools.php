@@ -50,7 +50,7 @@ class Tools extends ToolsBase
     public function envioLoteRPS(array $rpss)
     {
         $this->method = 'EnvioLoteRPS';
-        $fact = new Factories\EnvioRPS($this->certificate);
+        $fact = new Factories\EnvioLoteRPS($this->certificate);
         $fact->setSignAlgorithm($this->algorithm);
         $message = $fact->render(
             $this->versao,
