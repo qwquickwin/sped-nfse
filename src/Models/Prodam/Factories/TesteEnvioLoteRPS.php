@@ -92,7 +92,7 @@ class TesteEnvioLoteRPS extends Factory
         $xmlRPS = '';
         $this->totalizeRps($data);
         foreach ($data as $rps) {
-            $xmlRPS .= RenderRPS::toXml($data, $this->certificate, $this->algorithm);
+            $xmlRPS .= RenderRPS::toXml($rps, $this->certificate, $this->algorithm);
         }
         return $xmlRPS;
     }
