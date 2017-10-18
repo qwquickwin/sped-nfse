@@ -338,7 +338,15 @@ class Rps extends RpsBase
      */
     public function discriminacao($desc)
     {
-        $this->discriminacaoRPS = Strings::replaceSpecialsChars(trim($desc));
+        $string = trim($desc);
+        $aFind = ['&','á','à','ã','â','é','ê','í','ó','ô','õ','ú','ü',
+            'ç','Á','À','Ã','Â','É','Ê','Í','Ó','Ô','Õ','Ú','Ü','Ç'];
+        $aSubs = ['e','a','a','a','a','e','e','i','o','o','o','u','u',
+            'c','A','A','A','A','E','E','I','O','O','O','U','U','C'];
+        $newstr = str_replace($aFind, $aSubs, $string);
+        $newstr = preg_replace("/[^a-zA-Z0-9 @,-.;:\/|]/", "", $newstr);
+
+        $this->discriminacaoRPS = $newstr;
     }
     
     /**
