@@ -263,9 +263,9 @@ class Tools extends ToolsBase
         //no caso da Prodam o URL é unico para todas as ações
         $url = $this->url[$this->config->tpAmb];
         //o ambiente de testes da Prodam não FUNCIONA!!
-        if ($this->config->tpAmb == 2) {
+        //if ($this->config->tpAmb == 2) {
             $this->soapversion = SOAP_1_1;
-        }
+        //}
         if (!is_object($this->soap)) {
             $this->soap = new SoapCurl($this->certificate);
         }
