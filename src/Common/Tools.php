@@ -200,4 +200,9 @@ abstract class Tools
     {
         return EntitiesCharacters::unconvert(htmlentities($message, ENT_NOQUOTES));
     }
+
+    public function getValidade()
+    {
+        return $this->certificate->getValidTo();
+    }
 }
