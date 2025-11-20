@@ -146,9 +146,9 @@ class RenderRPS
         );
         self::$dom->addChild(
             $root,
-            $versao > 1 ? 'ValorPIS' : 'ValorPis' ,
+            'ValorPIS',
             $rps->valorPISRPS,
-            true,
+            false,
             'Valor do PIS',
             false
         );
