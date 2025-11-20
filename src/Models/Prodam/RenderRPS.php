@@ -512,7 +512,6 @@ class RenderRPS
         //finaliza
         self::$dom->appendChild($root);
         $xml = str_replace('<?xml version="1.0" encoding="utf-8"?>', '', self::$dom->saveXML());
-        log_message('error',$xml);
         return $xml;
     }
     
