@@ -26,18 +26,19 @@ class RenderRPS
     protected static $certificate;
     protected static $algorithm;
 
-    public static function toXml($data, Certificate $certificate, $algorithm = OPENSSL_ALGO_SHA1)
+    public static function toXml($data, Certificate $certificate, $algorithm = OPENSSL_ALGO_SHA1, $versao)
     {
         self::$certificate = $certificate;
         self::$algorithm = $algorithm;
         $xml = '';
         if (is_object($data)) {
-            return self::render($data);
+            return self::render($data, $versao);
         } elseif (is_array($data)) {
             foreach ($data as $rps) {
-                $xml .= self::render($rps);
+                $xml .= self::render($rps, $versao);
             }
         }
+
         return $xml;
     }
     
@@ -46,7 +47,7 @@ class RenderRPS
      * @param Rps $rps
      * @return string
      */
-    private static function render(Rps $rps)
+    private static function render(Rps $rps, $versao)
     {
         self::$dom = new Dom('1.0', 'utf-8');
         $root = self::$dom->createElement('RPS');
@@ -57,7 +58,7 @@ class RenderRPS
         self::$dom->addChild(
             $root,
             'Assinatura',
-            self::signstr($rps),
+            self::signstr($rps, $versao),
             true,
             'Tag assinatura do RPS vazia',
             true
@@ -122,14 +123,19 @@ class RenderRPS
             'Tributação do RPS',
             false
         );
-        self::$dom->addChild(
-            $root,
-            'ValorServicos',
-            $rps->valorServicosRPS,
-            true,
-            'Valor dos serviços',
-            false
-        );
+
+        if($versao == 1)
+        {
+            self::$dom->addChild(
+                $root,
+                'ValorServicos',
+                $rps->valorServicosRPS,
+                true,
+                'Valor dos serviços',
+                false
+            );
+        }
+        
         self::$dom->addChild(
             $root,
             'ValorDeducoes',
@@ -140,9 +146,9 @@ class RenderRPS
         );
         self::$dom->addChild(
             $root,
-            'ValorPis',
+            $versao > 1 ? 'ValorPIS' : 'ValorPis' ,
             $rps->valorPISRPS,
-            false,
+            true,
             'Valor do PIS',
             false
         );
@@ -150,7 +156,7 @@ class RenderRPS
             $root,
             'ValorCOFINS',
             $rps->valorCOFINSRPS,
-            false,
+            $versao > 1 ? true : false,
             'Valor do COFINS',
             false
         );
@@ -158,7 +164,7 @@ class RenderRPS
             $root,
             'ValorINSS',
             $rps->valorINSSRPS,
-            false,
+            $versao > 1 ? true : false,
             'Valor do INSS',
             false
         );
@@ -166,7 +172,7 @@ class RenderRPS
             $root,
             'ValorIR',
             $rps->valorIRRPS,
-            false,
+            $versao > 1 ? true : false,
             'Valor do IR',
             false
         );
@@ -174,10 +180,11 @@ class RenderRPS
             $root,
             'ValorCSLL',
             $rps->valorCSLLRPS,
-            false,
+            $versao > 1 ? true : false,
             'Valor do CSLL',
             false
         );
+
         self::$dom->addChild(
             $root,
             'CodigoServico',
@@ -353,9 +360,159 @@ class RenderRPS
             'Discriminação do serviço',
             false
         );
+
+        if($versao > 1)
+        {
+            self::$dom->addChild(
+                $root,
+                'ValorFinalCobrado',
+                $rps->valorServicosRPS,
+                true,
+                'Valor dos serviços',
+                false
+            );
+
+            self::$dom->addChild(
+                $root,
+                'ValorMulta',
+                $rps->valorMulta,
+                false,
+                'Valor da multa',
+                false
+            );
+
+            self::$dom->addChild(
+                $root,
+                'ValorJuros',
+                $rps->valorJuros,
+                false,
+                'Valor dos juros',
+                false
+            );
+
+            self::$dom->addChild(
+                $root,
+                'ValorIPI',
+                $rps->valorIPI,
+                false,
+                'Valor do IPI',
+                false
+            );
+
+            self::$dom->addChild(
+                $root,
+                'ExigibilidadeSuspensa',
+                $rps->exigibilidadeSuspensa,
+                true,
+                'Exigibilidade Suspensa 0-nao | 1-sim',
+                false
+            );
+
+            self::$dom->addChild(
+                $root,
+                'PagamentoParceladoAntecipado',
+                $rps->pagamentoParceladoAntecipado,
+                true,
+                'Informe a nota fiscal de pagamento parcelado antecipado (realizado antes do fornecimento). 0-nao | 1-sim',
+                false
+            );
+
+            self::$dom->addChild(
+                $root,
+                'NBS',
+                $rps->NBS,
+                true,
+                'Nomenclatura Brasileira de Serviços',
+                false
+            );
+
+            // escolha um dos dois elementos conforme os dados do RPS
+            if (!empty($rps->cLocPrestacao)) {
+                self::$dom->addChild(
+                    $root,
+                    'cLocPrestacao',
+                    $rps->cLocPrestacao,
+                    true,
+                    'Código da cidade de prestação',
+                    false
+                );
+            } elseif (!empty($rps->cPaisPrestacao)) {
+                self::$dom->addChild(
+                    $root,
+                    'cPaisPrestacao',
+                    $rps->cPaisPrestacao,
+                    true,
+                    'Código do país de prestação',
+                    false
+                );
+            }
+
+            // cria o elemento IBSCBS
+            $IBSCBS = self::$dom->createElement('IBSCBS');
+
+            // adiciona os filhos de IBSCBS diretamente
+            self::$dom->addChild(
+                $IBSCBS,
+                'finNFSe',
+                $rps->finNFSe,
+                true,
+                'Indicador da finalidade da emissão de NFS-e. 0 = NFS-e regular.',
+                false
+            );
+
+            self::$dom->addChild(
+                $IBSCBS,
+                'indFinal',
+                $rps->indFinal,
+                true,
+                'Indica operação de uso ou consumo pessoal. (0-Não ou 1-Sim).',
+                false
+            );
+
+            self::$dom->addChild(
+                $IBSCBS,
+                'cIndOp',
+                $rps->cIndOp,
+                true,
+                'Código indicador da operação de fornecimento, conforme tabela "código indicador de operação". Referente à tabela de indicador da operação publicada no ANEXO AnexoVII-IndOp_IBSCBS_V1.00.00-.xlsx',
+                false
+            );
+
+            self::$dom->addChild(
+                $IBSCBS,
+                'indDest',
+                $rps->indDest,
+                true,
+                'Indica o Destinatário dos serviços. 0 - O destinatário é o próprio tomador/adquirente identificado na NFS-e (tomador = adquirente = destinatário) 1 - O destinatário não é o próprio adquirente, podendo ser outra pessoa, física ou jurídica (ou equiparada), ou um estabelecimento diferente do indicado como tomador (tomador = adquirente ≠ destinatário).',
+                false
+            );
+
+            $valores = self::$dom->createElement('valores');
+            self::$dom->appChild($IBSCBS, $valores, 'Adicionando tag valores');
+
+            $trib = self::$dom->createElement('trib');
+            self::$dom->appChild($valores, $trib, 'Adicionando tag trib');
+
+            $gIBSCBS = self::$dom->createElement('gIBSCBS');
+            self::$dom->appChild($trib, $gIBSCBS, 'Adicionando tag gIBSCBS');
+
+            self::$dom->addChild(
+                $gIBSCBS,
+                'cClassTrib',
+                $rps->cClassTrib ?? '',
+                false,
+                'Código de classificação Tributária do IBS e da CBS.',
+                false
+            );
+
+            self::$dom->appChild($root, $IBSCBS, 'Adicionando tag IBSCBS');
+
+        }
+
         //finaliza
         self::$dom->appendChild($root);
         $xml = str_replace('<?xml version="1.0" encoding="utf-8"?>', '', self::$dom->saveXML());
+        log_message('error',$xml);
         return $xml;
     }
     
@@ -364,35 +521,69 @@ class RenderRPS
      * @param Rps $rps
      * @return string
      */
-    private static function signstr(Rps $rps)
+    private static function signstr(Rps $rps, $versao=1)
     {
-        $content = str_pad($rps->prestadorIM, 8, '0', STR_PAD_LEFT);
-        $content .= str_pad($rps->serieRPS, 5, ' ', STR_PAD_RIGHT);
-        $content .= str_pad($rps->numeroRPS, 12, '0', STR_PAD_LEFT);
-        $content .= str_replace("-", "", $rps->dtEmiRPS);
-        $content .= $rps->tributacaoRPS;
-        $content .= $rps->statusRPS;
-        $content .= ($rps->issRetidoRPS) ? 'S' : 'N';
-        $content .= str_pad(
-            str_replace(['.', ','], '', number_format($rps->valorServicosRPS, 2)),
-            15,
-            '0',
-            STR_PAD_LEFT
-        );
-        $content .= str_pad(
-            str_replace(['.', ','], '', number_format($rps->valorDeducoesRPS, 2)),
-            15,
-            '0',
-            STR_PAD_LEFT
-        );
-        $content .= str_pad($rps->codigoServicoRPS, 5, '0', STR_PAD_LEFT);
-        $content .= $rps->tomadorTipoDoc;
-        $content .= str_pad($rps->tomadorCNPJCPF, 14, '0', STR_PAD_LEFT);
-        if ($rps->intermediarioTipoDoc != '3' && $rps->intermediarioCNPJCPF != '') {
-            $content .= $rps->intermediarioTipoDoc;
-            $content .= str_pad($rps->intermediarioCNPJCPF, 14, '0', STR_PAD_LEFT);
-            $content .= $rps->intermediarioISSRetido;
+        if($versao > 1)
+        {
+            $content = str_pad($rps->prestadorIM, 12, '0', STR_PAD_LEFT);
+            $content .= str_pad($rps->serieRPS, 5, ' ', STR_PAD_RIGHT);
+            $content .= str_pad($rps->numeroRPS, 12, '0', STR_PAD_LEFT);
+            $content .= str_replace("-", "", $rps->dtEmiRPS);
+            $content .= $rps->tributacaoRPS;
+            $content .= $rps->statusRPS;
+            $content .= ($rps->issRetidoRPS) ? 'S' : 'N';
+            $content .= str_pad(
+                str_replace(['.', ','], '', number_format($rps->valorServicosRPS, 2)),
+                15,
+                '0',
+                STR_PAD_LEFT
+            );
+            $content .= str_pad(
+                str_replace(['.', ','], '', number_format($rps->valorDeducoesRPS, 2)),
+                15,
+                '0',
+                STR_PAD_LEFT
+            );
+            $content .= str_pad($rps->codigoServicoRPS, 5, '0', STR_PAD_LEFT);
+            $content .= $rps->tomadorTipoDoc;
+            $content .= str_pad($rps->tomadorCNPJCPF, 14, '0', STR_PAD_LEFT);
+            if ($rps->intermediarioTipoDoc != '3' && $rps->intermediarioCNPJCPF != '') {
+                $content .= $rps->intermediarioTipoDoc;
+                $content .= str_pad($rps->intermediarioCNPJCPF, 14, '0', STR_PAD_LEFT);
+                $content .= $rps->intermediarioISSRetido;
+            }
         }
+        else
+        {
+            $content = str_pad($rps->prestadorIM, 8, '0', STR_PAD_LEFT);
+            $content .= str_pad($rps->serieRPS, 5, ' ', STR_PAD_RIGHT);
+            $content .= str_pad($rps->numeroRPS, 12, '0', STR_PAD_LEFT);
+            $content .= str_replace("-", "", $rps->dtEmiRPS);
+            $content .= $rps->tributacaoRPS;
+            $content .= $rps->statusRPS;
+            $content .= ($rps->issRetidoRPS) ? 'S' : 'N';
+            $content .= str_pad(
+                str_replace(['.', ','], '', number_format($rps->valorServicosRPS, 2)),
+                15,
+                '0',
+                STR_PAD_LEFT
+            );
+            $content .= str_pad(
+                str_replace(['.', ','], '', number_format($rps->valorDeducoesRPS, 2)),
+                15,
+                '0',
+                STR_PAD_LEFT
+            );
+            $content .= str_pad($rps->codigoServicoRPS, 5, '0', STR_PAD_LEFT);
+            $content .= $rps->tomadorTipoDoc;
+            $content .= str_pad($rps->tomadorCNPJCPF, 14, '0', STR_PAD_LEFT);
+            if ($rps->intermediarioTipoDoc != '3' && $rps->intermediarioCNPJCPF != '') {
+                $content .= $rps->intermediarioTipoDoc;
+                $content .= str_pad($rps->intermediarioCNPJCPF, 14, '0', STR_PAD_LEFT);
+                $content .= $rps->intermediarioISSRetido;
+            }
+        }
+
         //$contentBytes = self::getBytes($content);
         $signature = base64_encode(self::$certificate->sign($content, self::$algorithm));
         return $signature;

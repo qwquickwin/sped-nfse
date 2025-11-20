@@ -27,7 +27,8 @@ class Tools extends ToolsProdam
      */
     protected $url = [
         '2' => 'https://testenfe.prefeitura.sp.gov.br/ws/lotenfe.asmx',
-        '1' => 'https://nfe.prefeitura.sp.gov.br/ws/lotenfe.asmx'
+        // '1' => 'https://nfe.prefeitura.sp.gov.br/ws/lotenfe.asmx'
+        '1' => 'https://nfews.prefeitura.sp.gov.br/lotenfe.asmx',
     ];
     /**
      * County Namespace

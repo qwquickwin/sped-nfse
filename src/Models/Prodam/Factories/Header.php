@@ -74,11 +74,24 @@ class Header extends HeaderBase
         $content .= self::check('dtInicio', $dtIni);
         $content .= self::check('dtFim', $dtFim);
         $content .= self::check('NumeroPagina', $pagina);
-        if ($valorTotalServicos != 0) {
-            $content .= self::check('QtdRPS', $qtdRPS);
-            $content .= "<ValorTotalServicos>".number_format($valorTotalServicos, 2, '.', '')."</ValorTotalServicos>";
-            $content .= "<ValorTotalDeducoes>".number_format($valorTotalDeducoes, 2, '.', '')."</ValorTotalDeducoes>";
+
+        if($versao == 2)
+        {
+            if ($valorTotalServicos != 0) {
+                $content .= self::check('QtdRPS', $qtdRPS);
+                // $content .= "<ValorTotalServicos>".number_format($valorTotalServicos, 2, '.', '')."</ValorTotalServicos>";
+                // $content .= "<ValorTotalDeducoes>".number_format($valorTotalDeducoes, 2, '.', '')."</ValorTotalDeducoes>";
+            }
         }
+        else
+        {
+            if ($valorTotalServicos != 0) {
+                $content .= self::check('QtdRPS', $qtdRPS);
+                $content .= "<ValorTotalServicos>".number_format($valorTotalServicos, 2, '.', '')."</ValorTotalServicos>";
+                $content .= "<ValorTotalDeducoes>".number_format($valorTotalDeducoes, 2, '.', '')."</ValorTotalDeducoes>";
+            }
+        }
+        
         $content .= self::check('NumeroLote', $numeroLote);
         $content .= self::check('InscricaoPrestador', $prestadorIM);
         $content .= "</Cabecalho>";

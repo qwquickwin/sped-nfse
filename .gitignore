@@ -12,3 +12,4 @@ certs/*.pfx
 certs/*.pem
 config/*.json
 composer.lock
+.DS_Store
