@@ -435,4 +435,72 @@ class Rps extends RpsBase
     {
         $this->municipioPrestacaoRPS = $cmun;
     }
+
+    public function valorMulta($valor)
+    {
+        $this->valorMulta = $valor;
+    }
+
+    public function valorJuros($valor)
+    {
+        $this->valorJuros = $valor;
+    }
+
+    public function valorIPI($valor)
+    {
+        $this->valorIPI = $valor;
+    }
+
+    public function exigibilidadeSuspensa($valor)
+    {
+        $this->exigibilidadeSuspensa = $valor;
+    }
+
+    public function pagamentoParceladoAntecipado($cod)
+    {
+        $this->pagamentoParceladoAntecipado = $cod;
+    }
+
+    public function cLocPrestacao($cod)
+    {
+        $this->cLocPrestacao = $cod;
+    }
+
+    public function cPaisPrestacao($cod)
+    {
+        $this->cPaisPrestacao = $cod;
+    }
+
+    public function NBS($cod)
+    {
+        $this->NBS = $cod;
+    }
+
+    public function finNFSe($cod)
+    {
+        $this->finNFSe = $cod;
+    }
+
+    public function indFinal($cod)
+    {
+        $this->indFinal = $cod;
+    }
+
+    public function cIndOp($cod)
+    {
+        $this->cIndOp = $cod;
+    }
+
+    public function indDest($cod)
+    {
+        $this->indDest = $cod;
+    }
+
+    public function cClassTrib($cod)
+    {
+        $this->cClassTrib = $cod;
+    }
+
+
+
 }
