@@ -50,14 +50,14 @@ class EnvioRPS extends Factory
         $method = "PedidoEnvioRPS";
         $content = $this->requestFirstPart($method);
         if (is_object($data)) {
-            $xmlRPS .= $this->individual($data);
+            $xmlRPS .= $this->individual($data, $versao);
         } elseif (is_array($data)) {
             if (count($data) == 1) {
-                $xmlRPS .= $this->individual($data[0]);
+                $xmlRPS .= $this->individual($data[0], $versao);
             } else {
                 $method = "PedidoEnvioLoteRPS";
                 $content = $this->requestFirstPart($method);
-                $xmlRPS .= $this->lote($data);
+                $xmlRPS .= $this->lote($data, $versao);
             }
         } else {
             return '';
@@ -89,9 +89,9 @@ class EnvioRPS extends Factory
      * @param NFePHP\NFSe\Models\Prodam\Rps $data
      * @return string
      */
-    private function individual(Rps $data)
+    private function individual(Rps $data, $versao)
     {
-        return RenderRPS::toXml($data, $this->certificate, $this->algorithm);
+        return RenderRPS::toXml($data, $this->certificate, $this->algorithm, $versao);
     }
     
     /**
@@ -99,12 +99,12 @@ class EnvioRPS extends Factory
      * @param array $data
      * @return string
      */
-    private function lote(array $data)
+    private function lote(array $data, $versao)
     {
         $xmlRPS = '';
         $this->totalizeRps($data);
         foreach ($data as $rps) {
-            $xmlRPS .= RenderRPS::toXml($rps, $this->certificate, $this->algorithm);
+            $xmlRPS .= RenderRPS::toXml($rps, $this->certificate, $this->algorithm, $versao);
         }
         return $xmlRPS;
     }

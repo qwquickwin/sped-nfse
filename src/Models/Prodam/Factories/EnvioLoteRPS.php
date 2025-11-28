@@ -49,7 +49,7 @@ class EnvioLoteRPS extends Factory
         $xmlRPS = '';
         $method = "PedidoEnvioLoteRPS";
         $content = $this->requestFirstPart($method);
-        $xmlRPS .= $this->lote($data);
+        $xmlRPS .= $this->lote($data, $versao);
         $content .= Header::render(
             $versao,
             $remetenteTipoDoc,
@@ -77,9 +77,9 @@ class EnvioLoteRPS extends Factory
      * @param NFePHP\NFSe\Models\Prodam\Rps $data
      * @return string
      */
-    private function individual(Rps $data)
+    private function individual(Rps $data, $versao)
     {
-        return RenderRPS::toXml($data, $this->certificate, $this->algorithm);
+        return RenderRPS::toXml($data, $this->certificate, $this->algorithm, $versao);
     }
     
     /**
@@ -87,12 +87,12 @@ class EnvioLoteRPS extends Factory
      * @param array $data
      * @return string
      */
-    private function lote(array $data)
+    private function lote(array $data, $versao)
     {
         $xmlRPS = '';
         $this->totalizeRps($data);
         foreach ($data as $rps) {
-            $xmlRPS .= RenderRPS::toXml($rps, $this->certificate, $this->algorithm);
+            $xmlRPS .= RenderRPS::toXml($rps, $this->certificate, $this->algorithm, $versao);
         }
         return $xmlRPS;
     }
