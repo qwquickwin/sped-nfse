@@ -26,7 +26,7 @@ class RenderRPS
     protected static $certificate;
     protected static $algorithm;
 
-    public static function toXml($data, Certificate $certificate, $algorithm = OPENSSL_ALGO_SHA1, $versao)
+    public static function toXml($data, Certificate $certificate, $algorithm = OPENSSL_ALGO_SHA1, $versao = null)
     {
         self::$certificate = $certificate;
         self::$algorithm = $algorithm;
